@@ -8,7 +8,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { SelectItem } from "@/components/ui/select";
-import { Doctors } from "@/constants";
+import { AppointmentTypes, Doctors } from "@/constants";
 import {
   createAppointment,
   updateAppointment,
@@ -50,6 +50,7 @@ export const AppointmentForm = ({
       reason: appointment ? appointment.reason : "",
       note: appointment?.note || "",
       cancellationReason: appointment?.cancellationReason || "",
+      appointmentType:appointment?.appointmentType || 'clinicVisit',
     },
   });
 
@@ -73,17 +74,18 @@ export const AppointmentForm = ({
     try {
       if (type === "create" && patientId) {
         const appointment = {
-          userId,
+          userId, 
           patients: patientId,
           primaryPhysician: values.primaryPhysician,
           schedule: new Date(values.schedule),
           reason: values.reason!,
           status: status as Status,
           note: values.note,
+          appointmentType:values.appointmentType
         };
-
+        
         const newAppointment = await createAppointment(appointment);
-
+        
         if (newAppointment) {
           form.reset();
           router.push(
@@ -99,6 +101,7 @@ export const AppointmentForm = ({
             schedule: new Date(values.schedule),
             status: status as Status,
             cancellationReason: values.cancellationReason,
+            appointmentType:values.appointmentType
           },
           type,
         };
@@ -165,6 +168,20 @@ export const AppointmentForm = ({
                       />
                       <p>{doctor.name}</p>
                     </div>
+                  </SelectItem>
+                ))}
+              </CustomFormField>
+
+              <CustomFormField
+                fieldType={FormFieldType.SELECT}
+                control={form.control}
+                name="appointmentType"
+                label="Appointment Type"
+                placeholder="Select the appointment type"
+              >
+                {AppointmentTypes.map((item, i) => (
+                  <SelectItem key={item.name + i} value={item.value}>
+                      <p>{item.name}</p>
                   </SelectItem>
                 ))}
               </CustomFormField>

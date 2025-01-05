@@ -40,10 +40,28 @@ interface CustomProps {
   children?: React.ReactNode;
   renderSkeleton?: (field: any) => React.ReactNode;
   fieldType: FormFieldType;
+  min?: number;
+  max?: number;
+  step?: number;
+  type?: string;
 }
 
 const RenderInput = ({ field, props }: { field: any; props: CustomProps }) => {
   switch (props.fieldType) {
+    case FormFieldType.PHONE_INPUT:
+      return (
+        <FormControl>
+          <PhoneInput
+            defaultCountry="IN"
+            placeholder={props.placeholder}
+            international
+            withCountryCallingCode
+            value={field.value as E164Number | undefined}
+            onChange={field.onChange}
+            className="input-phone"
+          />
+        </FormControl>
+      );
     case FormFieldType.INPUT:
       return (
         <div className="flex rounded-md border border-dark-500 bg-dark-400">
@@ -58,6 +76,10 @@ const RenderInput = ({ field, props }: { field: any; props: CustomProps }) => {
           )}
           <FormControl>
             <Input
+              type={props.type || "text"}
+              min={props.min}
+              max={props.max}
+              step={props.step}
               placeholder={props.placeholder}
               {...field}
               className="shad-input border-0"

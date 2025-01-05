@@ -75,6 +75,7 @@ export function RegisterForm({ user }: { user: User }) {
     }
   }
   return (
+    <div className="mt-10">
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
@@ -333,6 +334,7 @@ export function RegisterForm({ user }: { user: User }) {
         <SubmitButton isLoading={isLoading}>Get Started</SubmitButton>
       </form>
     </Form>
+    </div>
   );
 }
 

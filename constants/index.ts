@@ -26,6 +26,26 @@ export const PatientFormDefaultValues = {
   privacyConsent: false,
 };
 
+export const DoctorFormDefaultValues = {
+  userId: "",
+  name: "",
+  email: "",
+  phone: "",
+  specialization: "",
+  qualifications: "",
+  licenseNumber: "",
+  registrationNumber: "",
+  availableHours: "",
+  experience: 0,
+  workingDays: "",
+  profilePhoto: "",
+  biography: "",
+  languages: "",
+  consultationFees: 0,
+  status: "Active" as Status,
+  clinicAddress: "",
+};
+
 export const IdentificationTypes = [
   "Birth Certificate",
   "Driver's License",
@@ -39,6 +59,18 @@ export const IdentificationTypes = [
   "Student ID Card",
   "Voter ID Card",
 ];
+
+export const AppointmentTypes = [
+  {
+    value: "homeVisit",
+    name: "Home Visit",
+  },
+  {
+    value: "clinicVisit",
+    name: "Clinic Visit",
+  },
+];
+export const Status = ["Active", "InActive", "OnLeave"];
 
 export const Doctors = [
   {

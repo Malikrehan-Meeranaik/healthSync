@@ -76,6 +76,28 @@ export const PatientFormValidation = z.object({
     }),
 });
 
+export const DoctorFormValidation = z.object({
+  userId: z.string().min(1, "User ID is required"),
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Invalid email address"),
+  phone: z.string().min(1, "Phone number is required"),
+  specialization: z.string().min(1, "Specialization is required"),
+  qualifications: z.string().min(1, "Qualifications are required"),
+  licenseNumber: z.string().min(1, "License number is required"),
+  registrationNumber: z.string().min(1, "Registration number is required"),
+  availableHours: z.string().min(1, "Available hours are required"),
+  experience: z.coerce.number().min(0, "Experience must be a positive number"),
+  consultationFees: z.coerce
+    .number()
+    .min(0, "Consultation fees must be a positive number"),
+  workingDays: z.string().min(1, "Working days are required"),
+  profilePhoto: z.any().optional(),
+  biography: z.string().min(1, "Biography is required"),
+  languages: z.string().min(1, "Languages are required"),
+  status: z.enum(["Active", "Inactive", "On Leave"]),
+  clinicAddress: z.string().min(1, "Clinic address is required"),
+});
+
 export const CreateAppointmentSchema = z.object({
   primaryPhysician: z.string().min(2, "Select at least one doctor"),
   schedule: z.coerce.date(),
@@ -85,6 +107,7 @@ export const CreateAppointmentSchema = z.object({
     .max(500, "Reason must be at most 500 characters"),
   note: z.string().optional(),
   cancellationReason: z.string().optional(),
+  appointmentType: z.enum(["homeVisit", "clinicVisit"]).optional(),
 });
 
 export const ScheduleAppointmentSchema = z.object({
@@ -93,6 +116,7 @@ export const ScheduleAppointmentSchema = z.object({
   reason: z.string().optional(),
   note: z.string().optional(),
   cancellationReason: z.string().optional(),
+  appointmentType: z.enum(["homeVisit", "clinicVisit"]).optional(),
 });
 
 export const CancelAppointmentSchema = z.object({

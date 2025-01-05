@@ -6,6 +6,7 @@ declare type SearchParamProps = {
 };
 
 declare type Gender = "Male" | "Female" | "Other";
+declare type AppointmentType = "Home Visit" | "Clinic Visit";
 declare type Status = "pending" | "scheduled" | "cancelled";
 
 declare interface CreateUserParams {
@@ -38,6 +39,23 @@ declare interface RegisterUserParams extends CreateUserParams {
   privacyConsent: boolean;
 }
 
+declare interface DoctorRegisterParams extends CreateUserParams {
+  userId: string;
+  specialization: string;
+  qualifications: string;
+  licenseNumber: string;
+  registrationNumber: string;
+  availableHours: string;
+  experience: number;
+  workingDays: string;
+  profilePhoto?: FormData;
+  biography: string;
+  languages: string;
+  consultationFees: number;
+  status: 'Active' | 'InActive' | 'OnLeave';
+  clinicAddress: string;
+}
+
 declare type CreateAppointmentParams = {
   userId: string;
   patient: string;
@@ -46,6 +64,7 @@ declare type CreateAppointmentParams = {
   schedule: Date;
   status: Status;
   note: string | undefined;
+  appointmentType:AppointmentType
 };
 
 declare type UpdateAppointmentParams = {
@@ -54,4 +73,5 @@ declare type UpdateAppointmentParams = {
   timeZone: string;
   appointment: Appointment;
   type: string;
+  appointmentType:AppointmentType
 };

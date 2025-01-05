@@ -32,5 +32,6 @@ export interface Appointment extends Models.Document {
   reason: string;
   note: string;
   userId: string;
+  appointmentType:AppointmentType;
   cancellationReason: string | null;
 }
