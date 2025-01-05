@@ -1,6 +1,10 @@
 import { withSentryConfig } from "@sentry/nextjs";
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
+const nextConfig = {
+  images: {
+    domains: ['cloud.appwrite.io'],
+  },
+}
 
 export default withSentryConfig(nextConfig, {
   // For all available options, see:

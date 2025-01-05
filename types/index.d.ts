@@ -17,6 +17,12 @@ declare interface CreateUserParams {
 declare interface User extends CreateUserParams {
   $id: string;
 }
+declare interface GetUsersParams {
+  searchQuery?: string;
+  page?: number;
+  limit?: number;
+}
+
 
 declare interface RegisterUserParams extends CreateUserParams {
   userId: string;

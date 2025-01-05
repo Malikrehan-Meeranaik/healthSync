@@ -3,7 +3,8 @@ import { redirect } from "next/navigation";
 
 import RegisterForm from "@/components/forms/RegisterForm";
 import Logo from "@/components/Logo";
-import { getPatient, getUser } from "@/lib/actions/patient.actions";
+import { getPatient } from "@/lib/actions/patient.actions";
+import {  getUser } from "@/lib/actions/user.actions";
 
 const Register = async ({ params: { userId } }: SearchParamProps) => {
   const user = await getUser(userId);

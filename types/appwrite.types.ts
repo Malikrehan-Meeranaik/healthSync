@@ -35,3 +35,32 @@ export interface Appointment extends Models.Document {
   appointmentType:AppointmentType;
   cancellationReason: string | null;
 }
+export interface User extends Models.Document {
+  userId: string;
+  name: string;
+  email: string;
+  phone: string;
+  status: "verified" | "unverified";
+  lastActivity: Date;
+  joined: Date;
+}
+
+export interface Doctor extends Models.Document {
+  userId: string;
+  name: string;
+  email: string;
+  phone: string;
+  specialization: string;
+  qualifications: string;
+  licenseNumber: string;
+  registrationNumber: string;
+  availableHours: string;
+  experience: number;
+  workingDays: string;
+  profilePhoto?: string;
+  biography: string;
+  languages?: string;
+  consultationFees: number;
+  status: string;
+  clinicAddress: string;
+}

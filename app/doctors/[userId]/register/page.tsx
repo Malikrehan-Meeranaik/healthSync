@@ -2,7 +2,7 @@ import Image from "next/image";
 import { redirect } from "next/navigation";
 
 import Logo from "@/components/Logo";
-import {  getUser } from "@/lib/actions/patient.actions";
+import {  getUser } from "@/lib/actions/user.actions";
 import DoctorRegisterForm from "@/components/forms/DoctorRegisterForm";
 
 const Register = async ({ params: { userId } }: SearchParamProps) => {

@@ -51,3 +51,35 @@ export const registerDoctor = async ({profilePhoto,...doctor}:DoctorRegisterPara
         console.log(error)
       }
 }
+
+export const getDoctor = async (userId: string) => {
+  try {
+    const doctors = await databases.listDocuments(
+      DATABASE_ID!,
+      DOCTORS_COLLECTION_ID!,
+      [Query.equal("userId", [userId])]
+    );
+
+    return parseStringify(doctors.documents[0]);
+  } catch (error) {
+    console.error(
+      "An error occurred while retrieving the doctor details:",
+      error
+    );
+  }
+};
+export const getDoctorsList = async () => {
+  try {
+    const doctors = await databases.listDocuments(
+      DATABASE_ID!,
+      DOCTORS_COLLECTION_ID!,
+    );
+
+    return parseStringify(doctors.documents);
+  } catch (error) {
+    console.error(
+      "An error occurred while retrieving the doctors details:",
+      error
+    );
+  }
+};
