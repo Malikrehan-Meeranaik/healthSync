@@ -32,7 +32,7 @@ A web application for patient, doctor and appoitments management that allows pat
 
 ➡️ **Administrative feature**: Admin can delete any profiel of users, doctors or patients
 
-➡️ **Dashboard feature**: Admin or doctor can overall see the appointments and patients on dashboard
+➡️ **Dashboard feature**: Admin or doctor can overall see the appointments and patients, Doctor can change his/her status for the availability on dashboard
 
 ➡️ **File Upload Using Appwrite Storage**: Users or Doctors can upload and store files securely within the app using Appwrite storage services.
 
