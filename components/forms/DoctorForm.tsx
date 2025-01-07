@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { createUser } from "@/lib/actions/patient.actions";
+import { createUser } from "@/lib/actions/user.actions";
 import { UserFormValidation } from "@/lib/validation";
 
 import CustomFormField, { FormFieldType } from "../CustomFormField";

@@ -1,32 +1,18 @@
 import Image from "next/image";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 
 import Logo from "@/components/Logo";
 import { Button } from "@/components/ui/button";
-import { getAppointment } from "@/lib/actions/appointment.actions";
-import { getDoctorsList } from "@/lib/actions/doctor.actions";
+import { getDoctor } from "@/lib/actions/doctor.actions";
 import { formatDateTime } from "@/lib/utils";
-import { Doctor } from "@/types/appwrite.types";
 
 const RequestSuccess = async ({
   searchParams,
   params: { userId },
 }: SearchParamProps) => {
-  setTimeout(() => {
-    redirect(`/doctors/${userId}/dashboard`);
-  }, 5000);
-
-  const appointmentId = (searchParams?.appointmentId as string) || "";
-  const appointment = await getAppointment(appointmentId);
-  const doctors = await getDoctorsList();
-
-  const doctor = doctors.find(
-    (doctor: Doctor) => doctor.userId === appointment.primaryPhysician
-  );
-
+  const doctor = await getDoctor(userId);
   return (
-    <div className=" flex h-screen max-h-screen px-[5%] ">
+    <div className=" flex h-screen max-h-screen px-[5%]">
       <div className="success-img ">
         <Link href="/">
           <Logo></Logo>
@@ -40,22 +26,24 @@ const RequestSuccess = async ({
             alt="success"
           />
           <h2 className="header mb-6 max-w-[600px] text-center">
-            Your{" "}
-            <span className="text-secondaryColor">appointment request</span> has
+            Your <span className="text-secondaryColor">registration</span> has
             been successfully submitted!
           </h2>
-          <p>We&apos;ll be in touch shortly to confirm.</p>
+          <p className="italic">
+            Welcome to HealthSync: Simplifying Medical Appointments for Patients
+            and Doctors.
+          </p>
         </section>
 
         <section className="request-details">
-          <p>Requested appointment details: </p>
+          <p className="font-semibold">Your details: </p>
           <div className="flex items-center gap-3">
             <Image
               src={doctor.profilePhoto!}
               alt="doctor"
-              width={100}
-              height={100}
-              className="size-6"
+              width={200}
+              height={200}
+              className="size-24 rounded-full"
             />
             <p className="whitespace-nowrap">Dr. {doctor?.name}</p>
           </div>
@@ -66,13 +54,21 @@ const RequestSuccess = async ({
               width={24}
               alt="calendar"
             />
-            <p> {formatDateTime(appointment.schedule).dateTime}</p>
+            <p> {formatDateTime(doctor?.$createdAt).dateTime}</p>
           </div>
+          <p>
+            {" "}
+            <span className="font-semibold">Specialization:</span>{" "}
+            {doctor?.specialization}
+          </p>
         </section>
 
         <Button variant="outline" className="shad-primary-btn" asChild>
-          <Link href={`/patients/${userId}/new-appointment`}>
-            New Appointment
+          <Link
+            className="cursor-pointer"
+            href={`/doctors/${userId}/dashboard`}
+          >
+            View Dashboard
           </Link>
         </Button>
 

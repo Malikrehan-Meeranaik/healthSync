@@ -8,13 +8,13 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { SelectItem } from "@/components/ui/select";
-import { AppointmentTypes, Doctors } from "@/constants";
+import { AppointmentTypes } from "@/constants";
 import {
   createAppointment,
   updateAppointment,
 } from "@/lib/actions/appointment.actions";
 import { getAppointmentSchema } from "@/lib/validation";
-import { Appointment } from "@/types/appwrite.types";
+import { Appointment, Doctor } from "@/types/appwrite.types";
 
 import "react-datepicker/dist/react-datepicker.css";
 
@@ -28,12 +28,14 @@ export const AppointmentForm = ({
   type = "create",
   appointment,
   setOpen,
+  doctors,
 }: {
   userId: string;
   patientId: string;
   type: "create" | "schedule" | "cancel";
   appointment?: Appointment;
   setOpen?: Dispatch<SetStateAction<boolean>>;
+  doctors?: Doctor[];
 }) => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -50,7 +52,7 @@ export const AppointmentForm = ({
       reason: appointment ? appointment.reason : "",
       note: appointment?.note || "",
       cancellationReason: appointment?.cancellationReason || "",
-      appointmentType:appointment?.appointmentType || 'clinicVisit',
+      appointmentType: appointment?.appointmentType || "clinicVisit",
     },
   });
 
@@ -74,18 +76,18 @@ export const AppointmentForm = ({
     try {
       if (type === "create" && patientId) {
         const appointment = {
-          userId, 
+          userId,
           patients: patientId,
           primaryPhysician: values.primaryPhysician,
           schedule: new Date(values.schedule),
           reason: values.reason!,
           status: status as Status,
           note: values.note,
-          appointmentType:values.appointmentType
+          appointmentType: values.appointmentType,
         };
-        
+
         const newAppointment = await createAppointment(appointment);
-        
+
         if (newAppointment) {
           form.reset();
           router.push(
@@ -101,7 +103,7 @@ export const AppointmentForm = ({
             schedule: new Date(values.schedule),
             status: status as Status,
             cancellationReason: values.cancellationReason,
-            appointmentType:values.appointmentType
+            appointmentType: values.appointmentType,
           },
           type,
         };
@@ -116,7 +118,9 @@ export const AppointmentForm = ({
     } catch (error) {
       console.log(error);
     }
-    setIsLoading(false);
+    setTimeout(() => {
+      setIsLoading(false);
+    });
   };
 
   let buttonLabel;
@@ -156,11 +160,11 @@ export const AppointmentForm = ({
                 label="Doctor"
                 placeholder="Select a doctor"
               >
-                {Doctors.map((doctor, i) => (
-                  <SelectItem key={doctor.name + i} value={doctor.name}>
+                {doctors?.map((doctor, i) => (
+                  <SelectItem key={doctor.name + i} value={doctor.userId}>
                     <div className="flex cursor-pointer items-center gap-2">
                       <Image
-                        src={doctor.image}
+                        src={doctor.profilePhoto!}
                         width={32}
                         height={32}
                         alt="doctor"
@@ -181,7 +185,7 @@ export const AppointmentForm = ({
               >
                 {AppointmentTypes.map((item, i) => (
                   <SelectItem key={item.name + i} value={item.value}>
-                      <p>{item.name}</p>
+                    <p>{item.name}</p>
                   </SelectItem>
                 ))}
               </CustomFormField>

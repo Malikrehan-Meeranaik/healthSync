@@ -58,6 +58,11 @@
     @apply text-18-bold md:text-24-bold;
   }
 
+  .backgroundImage {
+    @apply object-cover;
+    z-index: 0;
+  }
+
   .container {
     @apply relative flex-1 overflow-y-auto px-[5%];
   }
@@ -76,7 +81,7 @@
 
   /* ==== SUCCESS */
   .success-img {
-    @apply m-auto flex flex-1 flex-col items-center justify-between gap-10 py-10 rounded-2xl;
+    @apply m-auto flex flex-1 flex-col items-center justify-between gap-10 py-10 rounded-2xl z-50;
     box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
   }
 
@@ -108,7 +113,7 @@
 
   /* ==== File Upload */
   .file-upload {
-    @apply text-12-regular flex cursor-pointer flex-col items-center justify-center gap-3 rounded-md border border-dashed border-dark-500 bg-dark-400 p-5;
+    @apply text-12-regular w-full h-full flex cursor-pointer flex-col items-center justify-center gap-3 rounded-md border border-dashed border-dark-500 bg-dark-400 p-5;
   }
 
   .file-upload_label {

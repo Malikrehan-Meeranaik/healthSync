@@ -60,6 +60,8 @@ declare interface DoctorRegisterParams extends CreateUserParams {
   consultationFees: number;
   status: 'Active' | 'InActive' | 'OnLeave';
   clinicAddress: string;
+  clinicPhoto?: FormData;
+  privacyConsent: boolean;
 }
 
 declare type CreateAppointmentParams = {
@@ -70,7 +72,7 @@ declare type CreateAppointmentParams = {
   schedule: Date;
   status: Status;
   note: string | undefined;
-  appointmentType:AppointmentType
+  appointmentType: AppointmentType
 };
 
 declare type UpdateAppointmentParams = {
@@ -79,5 +81,5 @@ declare type UpdateAppointmentParams = {
   timeZone: string;
   appointment: Appointment;
   type: string;
-  appointmentType:AppointmentType
+  appointmentType: AppointmentType
 };

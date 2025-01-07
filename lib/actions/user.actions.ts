@@ -1,11 +1,12 @@
 "use server";
 
-import { ID, Query, InputFile } from "node-appwrite";
+import { ID, Query } from "node-appwrite";
 
 import {
   users,
 } from "../appwrite.config";
 import { parseStringify } from "../utils";
+import { revalidatePath } from "next/cache";
 
 export const createUser = async (user: CreateUserParams) => {
   try {
@@ -24,7 +25,6 @@ export const createUser = async (user: CreateUserParams) => {
       const existingUser = await users.list([
         Query.equal("email", [user.email]),
       ]);
-
       return existingUser.users[0];
     }
     console.error("An error occurred while creating a new user:", error);
@@ -42,42 +42,42 @@ export const getUser = async (userId: string) => {
 
 // Get all users with pagination and search
 export const getAllUsers = async ({ searchQuery = "", page = 1, limit = 10 }: GetUsersParams = {}) => {
-    try {
-      let queries: any[] = [
-        Query.limit(limit),
-        Query.offset((page - 1) * limit),
+  try {
+    let queries: any[] = [
+      Query.limit(limit),
+      Query.offset((page - 1) * limit),
+    ];
+
+    // Add search query if provided
+    if (searchQuery) {
+      queries = [
+        ...queries,
+        Query.search("name", searchQuery),
       ];
-  
-      // Add search query if provided
-      if (searchQuery) {
-        queries = [
-          ...queries,
-          Query.search("name", searchQuery),
-        ];
-      }
-  
-      const usersList = await users.list(queries);
-  
-      return {
-        users: parseStringify(usersList.users),
-        total: usersList.total,
-        currentPage: page,
-        totalPages: Math.ceil(usersList.total / limit)
-      };
-    } catch (error) {
-      console.error("An error occurred while fetching users:", error);
-      throw error;
     }
-  };
-  
-  // Delete user
-  export const deleteUser = async (userId: string) => {
-    try {
-      const response = await users.delete(userId);
-      return parseStringify(response);
-    } catch (error) {
-      console.error("An error occurred while deleting the user:", error);
-      throw error;
-    }
-  };
-  
+
+    const usersList = await users.list(queries);
+
+    return {
+      users: parseStringify(usersList.users),
+      total: usersList.total,
+      currentPage: page,
+      totalPages: Math.ceil(usersList.total / limit)
+    };
+  } catch (error) {
+    console.error("An error occurred while fetching users:", error);
+    throw error;
+  }
+};
+
+// Delete user
+export const deleteUser = async (userId: string) => {
+  try {
+    const response = await users.delete(userId);
+    revalidatePath("/admin");
+    return parseStringify(response);
+  } catch (error) {
+    console.error("An error occurred while deleting the user:", error);
+    throw error;
+  }
+};

@@ -1,6 +1,7 @@
 "use server";
 
 import { ID, Query, InputFile } from "node-appwrite";
+
 import {
   BUCKET_ID,
   DATABASE_ID,
@@ -30,6 +31,7 @@ interface GetPatientsParams {
   searchQuery?: string;
   page?: number;
   limit?: number;
+  primaryPhysician?: string;
 }
 
 // Register new patient
@@ -76,24 +78,33 @@ export const getPatient = async (userId: string) => {
 
     return parseStringify(patients.documents[0]);
   } catch (error) {
-    console.error("An error occurred while retrieving the patient details:", error);
-    throw error;
+    console.error(
+      "An error occurred while retrieving the patient details:",
+      error
+    );
+    return false;
   }
 };
 
 // Get all patients with pagination and search
-export const getAllPatients = async ({ searchQuery = "", page = 1, limit = 10 }: GetPatientsParams = {}) => {
+export const getAllPatients = async ({
+  searchQuery = "",
+  page = 1,
+  limit = 10,
+  primaryPhysician
+}: GetPatientsParams = {}) => {
   try {
-    let queries: any[] = [
+    const queries: any[] = [
       Query.limit(limit),
       Query.offset((page - 1) * limit),
     ];
 
     if (searchQuery) {
-      queries = [
-        ...queries,
-        Query.search("name", searchQuery),
-      ];
+      queries.push(Query.search("name", searchQuery));
+    }
+
+    if (primaryPhysician) {
+      queries.push(Query.equal("primaryPhysician", [primaryPhysician]));
     }
 
     const patientsList = await databases.listDocuments(
@@ -113,17 +124,10 @@ export const getAllPatients = async ({ searchQuery = "", page = 1, limit = 10 }:
     throw error;
   }
 };
-
 // Delete patient
 export const deletePatient = async (patientId: string) => {
   try {
     // Get patient document to check for identification document
-    const patient = await databases.getDocument(
-      DATABASE_ID!,
-      PATIENTS_COLLECTION_ID!,
-      patientId
-    );
-
     // Delete patient document
     const response = await databases.deleteDocument(
       DATABASE_ID!,

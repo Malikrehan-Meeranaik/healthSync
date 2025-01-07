@@ -33,12 +33,18 @@ export const createAppointment = async (
 };
 
 //  GET RECENT APPOINTMENTS
-export const getRecentAppointmentList = async () => {
+export const getRecentAppointmentList = async (userId?: string) => {
   try {
+    const queries = [Query.orderDesc("$createdAt")];
+
+    if (userId) {
+      queries.push(Query.equal("primaryPhysician", [userId]));
+    }
+
     const appointments = await databases.listDocuments(
       DATABASE_ID!,
       APPOINTMENTS_COLLECTION_ID!,
-      [Query.orderDesc("$createdAt")]
+      queries
     );
 
     const initialCounts = {
@@ -79,6 +85,7 @@ export const getRecentAppointmentList = async () => {
     );
   }
 };
+
 //  UPDATE APPOINTMENT
 export const updateAppointment = async ({
   appointmentId,
@@ -115,6 +122,23 @@ export const getAppointment = async (appointmentId: string) => {
     );
 
     return parseStringify(appointment);
+  } catch (error) {
+    console.error(
+      "An error occurred while retrieving the existing patient:",
+      error
+    );
+  }
+};
+
+export const deleteAppointment = async (appointmentId: string) => {
+  try {
+    const deletedAppointment = await databases.deleteDocument(
+      DATABASE_ID!,
+      APPOINTMENTS_COLLECTION_ID!,
+      appointmentId
+    );
+
+    return parseStringify(deletedAppointment);
   } catch (error) {
     console.error(
       "An error occurred while retrieving the existing patient:",

@@ -7,13 +7,14 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 import { Form, FormControl } from "@/components/ui/form";
+import { DoctorFormDefaultValues } from "@/constants";
+import { registerDoctor } from "@/lib/actions/doctor.actions";
+import { DoctorFormValidation } from "@/lib/validation";
+
 import CustomFormField, { FormFieldType } from "../CustomFormField";
 import { FileUploader } from "../FileUploader";
 import SubmitButton from "../SubmitButton";
 import { SelectItem } from "../ui/select";
-import { DoctorFormValidation } from "@/lib/validation";
-import { DoctorFormDefaultValues } from "@/constants";
-import { registerDoctor } from "@/lib/actions/doctor.actions";
 
 export function DoctorRegisterForm({ user }: { user: User }) {
   const router = useRouter();
@@ -23,8 +24,8 @@ export function DoctorRegisterForm({ user }: { user: User }) {
     resolver: zodResolver(DoctorFormValidation),
     defaultValues: {
       ...DoctorFormDefaultValues,
-      experience: 0, 
-      consultationFees: 0, 
+      experience: 0,
+      consultationFees: 0,
       userId: user?.$id || "",
     },
   });
@@ -33,6 +34,7 @@ export function DoctorRegisterForm({ user }: { user: User }) {
     setIsLoading(true);
 
     let formData;
+    let ClinicFormData;
     if (values.profilePhoto && values.profilePhoto.length > 0) {
       const blobFile = new Blob([values.profilePhoto[0]], {
         type: values.profilePhoto[0].type,
@@ -42,18 +44,27 @@ export function DoctorRegisterForm({ user }: { user: User }) {
       formData.append("blobFile", blobFile);
       formData.append("fileName", values.profilePhoto[0].name);
     }
+    if (values.clinicPhoto && values.clinicPhoto.length > 0) {
+      const blobFile = new Blob([values.clinicPhoto[0]], {
+        type: values.clinicPhoto[0].type,
+      });
+
+      ClinicFormData = new FormData();
+      ClinicFormData.append("blobFile", blobFile);
+      ClinicFormData.append("fileName", values.clinicPhoto[0].name);
+    }
 
     try {
       const doctor = {
         ...values,
         profilePhoto: values.profilePhoto ? formData : undefined,
+        clinicPhoto: values.clinicPhoto ? ClinicFormData : undefined,
       };
-      console.log(doctor)
       // Add your doctor registration action here
       const newDoctor = await registerDoctor(doctor);
 
       if (doctor) {
-        router.push("/dashboard"); // Redirect to appropriate page
+        router.push(`success?doctorId=${newDoctor.$id}`); // Redirect to appropriate page
       }
     } catch (error) {
       console.log(error);
@@ -82,41 +93,51 @@ export function DoctorRegisterForm({ user }: { user: User }) {
             </div>
           </section>
 
-          <div className="flex flex-col gap-6 xl:flex-row">
+          <div className="flex justify-between gap-6">
+            <div className="flex w-1/2 flex-col  gap-2 ">
+              <CustomFormField
+                control={form.control}
+                fieldType={FormFieldType.INPUT}
+                name="name"
+                label="Full Name"
+                placeholder="Dr. John Doe"
+                iconSrc="/assets/icons/user.svg"
+                iconAlt="user"
+              />
+              <CustomFormField
+                control={form.control}
+                fieldType={FormFieldType.INPUT}
+                name="email"
+                label="Email"
+                placeholder="doctor@hospital.com"
+                iconSrc="/assets/icons/email.svg"
+                iconAlt="email"
+              />
+              <CustomFormField
+                control={form.control}
+                fieldType={FormFieldType.PHONE_INPUT}
+                name="phone"
+                label="Phone Number"
+                placeholder="0123456789"
+              />
+              <CustomFormField
+                control={form.control}
+                fieldType={FormFieldType.INPUT}
+                name="specialization"
+                label="Specialization"
+                placeholder="Cardiology"
+              />
+            </div>
             <CustomFormField
+              fieldType={FormFieldType.SKELETON}
               control={form.control}
-              fieldType={FormFieldType.INPUT}
-              name="name"
-              label="Full Name"
-              placeholder="Dr. John Doe"
-              iconSrc="/assets/icons/user.svg"
-              iconAlt="user"
-            />
-            <CustomFormField
-              control={form.control}
-              fieldType={FormFieldType.INPUT}
-              name="email"
-              label="Email"
-              placeholder="doctor@hospital.com"
-              iconSrc="/assets/icons/email.svg"
-              iconAlt="email"
-            />
-          </div>
-
-          <div className="flex flex-col gap-6 xl:flex-row">
-            <CustomFormField
-              control={form.control}
-              fieldType={FormFieldType.PHONE_INPUT}
-              name="phone"
-              label="Phone Number"
-              placeholder="0123456789"
-            />
-            <CustomFormField
-              control={form.control}
-              fieldType={FormFieldType.INPUT}
-              name="specialization"
-              label="Specialization"
-              placeholder="Cardiology"
+              name="profilePhoto"
+              label="Upload Profile Photo"
+              renderSkeleton={(field) => (
+                <FormControl>
+                  <FileUploader files={field.value} onChange={field.onChange} />
+                </FormControl>
+              )}
             />
           </div>
 
@@ -228,13 +249,40 @@ export function DoctorRegisterForm({ user }: { user: User }) {
           <CustomFormField
             fieldType={FormFieldType.SKELETON}
             control={form.control}
-            name="profilePhoto"
-            label="Upload Profile Photo"
+            name="clinicPhoto"
+            label="Upload Clinic Photo"
             renderSkeleton={(field) => (
               <FormControl>
                 <FileUploader files={field.value} onChange={field.onChange} />
               </FormControl>
             )}
+          />
+
+          <section className="space-y-6">
+            <div className="md-9 space-y-1">
+              <h2 className="sub-header">Consent and Privacy</h2>
+            </div>
+          </section>
+
+          <CustomFormField
+            control={form.control}
+            fieldType={FormFieldType.CHECKBOX}
+            name="treatmentConsent"
+            label="I consent for the treatment"
+          />
+
+          <CustomFormField
+            control={form.control}
+            fieldType={FormFieldType.CHECKBOX}
+            name="disclosureConsent"
+            label="I consent to non disclosure of patient information"
+          />
+
+          <CustomFormField
+            control={form.control}
+            fieldType={FormFieldType.CHECKBOX}
+            name="privacyConsent"
+            label="I consent to privacy policy"
           />
 
           <SubmitButton isLoading={isLoading}>Register as Doctor</SubmitButton>

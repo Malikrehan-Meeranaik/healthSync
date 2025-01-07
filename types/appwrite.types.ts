@@ -32,7 +32,7 @@ export interface Appointment extends Models.Document {
   reason: string;
   note: string;
   userId: string;
-  appointmentType:AppointmentType;
+  appointmentType: AppointmentType;
   cancellationReason: string | null;
 }
 export interface User extends Models.Document {
@@ -42,7 +42,7 @@ export interface User extends Models.Document {
   phone: string;
   status: "verified" | "unverified";
   lastActivity: Date;
-  joined: Date;
+  registration: Date;
 }
 
 export interface Doctor extends Models.Document {

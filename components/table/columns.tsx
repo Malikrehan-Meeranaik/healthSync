@@ -2,12 +2,19 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import React from "react";
 
-import { AppointmentTypes, Doctors } from "@/constants";
+import { AppointmentTypes } from "@/constants";
+import { deleteAppointment } from "@/lib/actions/appointment.actions";
+import { deleteDoctor } from "@/lib/actions/doctor.actions";
+import { deletePatient } from "@/lib/actions/patient.actions";
+import { deleteUser } from "@/lib/actions/user.actions";
 import { formatDateTime } from "@/lib/utils";
 import { Appointment, Doctor, Patient, User } from "@/types/appwrite.types";
 
 import { AppointmentModal } from "../AppointmentModal";
+import { ConfirmDialog } from "../ConfirmDialog";
 import { StatusBadge } from "../StatusBadge";
 
 export const columns: ColumnDef<Appointment>[] = [
@@ -22,7 +29,13 @@ export const columns: ColumnDef<Appointment>[] = [
     header: "Patient",
     cell: ({ row }) => {
       const appointment = row.original;
-      return <p className="text-14-medium ">{appointment.patients.name}</p>;
+      return (
+        <p className="text-14-medium ">
+          {appointment?.patients?.name || (
+            <span className="text-red-400">Deleted Patient</span>
+          )}
+        </p>
+      );
     },
   },
   {
@@ -59,9 +72,7 @@ export const columns: ColumnDef<Appointment>[] = [
         (item) => item.value === appointment.appointmentType
       );
       return (
-        <p className="text-14-regular min-w-[100px]">
-          {appointmentType?.name}
-        </p>
+        <p className="text-14-regular min-w-[100px]">{appointmentType?.name}</p>
       );
     },
   },
@@ -70,19 +81,20 @@ export const columns: ColumnDef<Appointment>[] = [
     header: "Doctor",
     cell: ({ row }) => {
       const appointment = row.original;
+      const doctors = sessionStorage.getItem("doctors");
 
-      const doctor = Doctors.find(
-        (doctor) => doctor.name === appointment.primaryPhysician
+      const doctor = JSON.parse(doctors!)?.find(
+        (doctor: Doctor) => doctor.userId === appointment.primaryPhysician
       );
 
       return (
         <div className="flex items-center gap-3">
           <Image
-            src={doctor?.image!}
+            src={doctor?.profilePhoto!}
             alt="doctor"
-            width={100}
-            height={100}
-            className="size-8"
+            width={120}
+            height={120}
+            className="size-8 rounded-full"
           />
           <p className="whitespace-nowrap">Dr. {doctor?.name}</p>
         </div>
@@ -94,11 +106,20 @@ export const columns: ColumnDef<Appointment>[] = [
     header: () => <div className="pl-4">Actions</div>,
     cell: ({ row }) => {
       const appointment = row.original;
+      const router = useRouter();
 
+      const handleDelete = async () => {
+        try {
+          await deleteAppointment(appointment.$id);
+          router.push(`/admin/?view=appointments`);
+        } catch (error) {
+          console.error("Error deleting appointments:", error);
+        }
+      };
       return (
-        <div className="flex gap-1">
+        <div className="flex items-center gap-1">
           <AppointmentModal
-            patientId={appointment.patients.$id}
+            patientId={appointment?.patients?.$id}
             userId={appointment.userId}
             appointment={appointment}
             type="schedule"
@@ -106,12 +127,18 @@ export const columns: ColumnDef<Appointment>[] = [
             description="Please confirm the following details to schedule."
           />
           <AppointmentModal
-            patientId={appointment.patients.$id}
+            patientId={appointment?.patients?.$id}
             userId={appointment.userId}
             appointment={appointment}
             type="cancel"
             title="Cancel Appointment"
             description="Are you sure you want to cancel your appointment?"
+          />
+          <ConfirmDialog
+            title="Confirm delete"
+            description={`Are you sure you want to appointment? This action cannot be undone.`}
+            onDelete={handleDelete}
+            buttonText="Delete"
           />
         </div>
       );
@@ -136,6 +163,15 @@ export const doctorsColumns: ColumnDef<Doctor>[] = [
           className="size-8 rounded-full"
         />
         <p className="whitespace-nowrap">Dr. {row.original.name}</p>
+      </div>
+    ),
+  },
+  {
+    accessorKey: "phone",
+    header: "Phone",
+    cell: ({ row }) => (
+      <div className="min-w-[115px]">
+        <p className="text-14-medium">{row.original.phone}</p>
       </div>
     ),
   },
@@ -169,7 +205,34 @@ export const doctorsColumns: ColumnDef<Doctor>[] = [
     cell: ({ row }) => (
       <p className="text-14-regular">${row.original.consultationFees}</p>
     ),
-  }
+  },
+  {
+    id: "actions",
+    header: () => <div className="pl-4">Actions</div>,
+    cell: ({ row }) => {
+      const user = row.original;
+      const router = useRouter();
+
+      const handleDelete = async () => {
+        try {
+          await deleteDoctor(user.$id);
+          router.push(`/admin/?view=doctors`);
+        } catch (error) {
+          console.error("Error deleting doctor:", error);
+        }
+      };
+
+      return (
+        <div className="flex gap-1 pl-6">
+          <ConfirmDialog
+            title="Confirm delete"
+            description={`Are you sure you want to doctor ${user.name}? This action cannot be undone.`}
+            onDelete={handleDelete}
+          />
+        </div>
+      );
+    },
+  },
 ];
 
 export const usersColumns: ColumnDef<User>[] = [
@@ -188,12 +251,11 @@ export const usersColumns: ColumnDef<User>[] = [
     cell: ({ row }) => <p className="text-14-regular">{row.original.email}</p>,
   },
   {
-    accessorKey: "status",
-    header: "Status",
+    accessorKey: "phone",
+    header: "Phone",
     cell: ({ row }) => (
       <div className="min-w-[115px]">
-        <p className="text-14-medium">{row.original.status}</p>
-        {/* <StatusBadge status={row.original.status} /> */}
+        <p className="text-14-medium">{row.original.phone}</p>
       </div>
     ),
   },
@@ -202,19 +264,37 @@ export const usersColumns: ColumnDef<User>[] = [
     header: "Joined Date",
     cell: ({ row }) => (
       <p className="text-14-regular">
-        {formatDateTime(row.original.joined).dateTime}
+        {formatDateTime(row.original.registration).dateTime}
       </p>
     ),
   },
   {
-    accessorKey: "lastActivity",
-    header: "Last Activity",
-    cell: ({ row }) => (
-      <p className="text-14-regular">
-        {formatDateTime(row.original.lastActivity).dateTime}
-      </p>
-    ),
-  }
+    id: "actions",
+    header: () => <div className="pl-4">Actions</div>,
+    cell: ({ row }) => {
+      const user = row.original;
+      const router = useRouter();
+
+      const handleDelete = async () => {
+        try {
+          await deleteUser(user.$id);
+          router.push(`/admin/?view=users`);
+        } catch (error) {
+          console.error("Error deleting user:", error);
+        }
+      };
+
+      return (
+        <div className="flex gap-1 pl-6">
+          <ConfirmDialog
+            title="Confirm delete"
+            description={`Are you sure you want to delete ${user.name}? This action cannot be undone.`}
+            onDelete={handleDelete}
+          />
+        </div>
+      );
+    },
+  },
 ];
 
 export const patientColumns: ColumnDef<Patient>[] = [
@@ -235,9 +315,27 @@ export const patientColumns: ColumnDef<Patient>[] = [
   {
     accessorKey: "primaryPhysician",
     header: "Primary Doctor",
-    cell: ({ row }) => (
-      <p className="text-14-regular">Dr. {row.original.primaryPhysician}</p>
-    ),
+    cell: ({ row }) => {
+      const appointment = row.original;
+      const doctors = sessionStorage.getItem("doctors");
+
+      const doctor = JSON.parse(doctors!)?.find(
+        (doctor: Doctor) => doctor.userId === appointment.primaryPhysician
+      );
+
+      return (
+        <div className="flex items-center gap-3">
+          <Image
+            src={doctor?.profilePhoto!}
+            alt="doctor"
+            width={120}
+            height={120}
+            className="size-8 rounded-full"
+          />
+          <p className="whitespace-nowrap">Dr. {doctor?.name}</p>
+        </div>
+      );
+    },
   },
   {
     accessorKey: "birthDate",
@@ -254,5 +352,32 @@ export const patientColumns: ColumnDef<Patient>[] = [
     cell: ({ row }) => (
       <p className="text-14-regular">{row.original.insuranceProvider}</p>
     ),
-  }
+  },
+  {
+    id: "actions",
+    header: () => <div className="pl-4">Actions</div>,
+    cell: ({ row }) => {
+      const user = row.original;
+      const router = useRouter();
+
+      const handleDelete = async () => {
+        try {
+          await deletePatient(user.$id);
+          router.push(`/admin/?view=patients`);
+        } catch (error) {
+          console.error("Error deleting patients:", error);
+        }
+      };
+
+      return (
+        <div className="flex gap-1 pl-6">
+          <ConfirmDialog
+            title="Confirm delete"
+            description={`Are you sure you want to patient ${user.name}? This action cannot be undone.`}
+            onDelete={handleDelete}
+          />
+        </div>
+      );
+    },
+  },
 ];

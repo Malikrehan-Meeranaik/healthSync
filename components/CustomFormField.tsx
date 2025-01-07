@@ -5,6 +5,7 @@ import ReactDatePicker from "react-datepicker";
 import { Control } from "react-hook-form";
 import PhoneInput from "react-phone-number-input";
 
+import "react-datepicker/dist/react-datepicker.css";
 import { Checkbox } from "./ui/checkbox";
 import {
   FormControl,
@@ -95,20 +96,6 @@ const RenderInput = ({ field, props }: { field: any; props: CustomProps }) => {
             {...field}
             className="shad-textArea"
             disabled={props.disabled}
-          />
-        </FormControl>
-      );
-    case FormFieldType.PHONE_INPUT:
-      return (
-        <FormControl>
-          <PhoneInput
-            defaultCountry="IN"
-            placeholder={props.placeholder}
-            international
-            withCountryCallingCode
-            value={field.value as E164Number | undefined}
-            onChange={field.onChange}
-            className="input-phone"
           />
         </FormControl>
       );
