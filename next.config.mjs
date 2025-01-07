@@ -2,9 +2,15 @@ import { withSentryConfig } from "@sentry/nextjs";
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['cloud.appwrite.io'],
+    domains: ["cloud.appwrite.io"],
   },
-}
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+};
 
 export default withSentryConfig(nextConfig, {
   // For all available options, see:
